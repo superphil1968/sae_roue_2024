@@ -54,6 +54,7 @@ typedef var_field_t *vf_ptr;
 char * Gen_HtmlCode_From_File( char *Path, var_field_t *var_field, int max_vardef );
 char *load_HtmlCode_From_File( char *Path,long * size);
 void Html_Patch ( var_field_t *pTab_Balise,int index, char * pChaine ) ;
+void Send_Json(char * pChaine) ;
 int Init_Web_Server(void (*)(void) );// used to initialize web, ethernet and pointer to cgi function 
 int DeInit_Web_Server(void);// used to close main server socket and web server thread
 void Web_Server_Thread(void const *args) ;

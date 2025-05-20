@@ -92,16 +92,21 @@ DigitalOut led4(LED4); // blink when can message is received
 
 
 /********* main cgi function used to patch data to the web server thread **********************************/
-void CGI_Function(void) // cgi function that patch web data to empty web page
+void CGI_Function2(void) // cgi function that patch web data to empty web page
 {  char ma_chaine4[20]={};// needed to form html response  
 
+sprintf(ma_chaine4,"{\"nom\":%d}",giCounter);
+Send_Json(ma_chaine4);
+
+
+/*
  sprintf (ma_chaine4,"%d",giCounter);// convert speed as ascii string
  Html_Patch (tab_balise,0,ma_chaine4);// patch first label with dyn.string
  sprintf (ma_chaine4,"%d",2*giCounter);// convert speed as ascii string
  Html_Patch (tab_balise,1,ma_chaine4);// patch first label with dyn.string
+*/
 
-
-giCounter=giCounter+2; 
+giCounter=giCounter+1; 
 
 
 }
@@ -137,9 +142,9 @@ char cChoix=0;
 //Thread WebThread(Web_Server_Thread);// create and launch web server thread
 /********* main cgi function used to patch data to the web server thread **********************************/
 
-Init_Web_Server(&CGI_Function); // create and initialize tcp server socket and pass function pointer to local CGI function
+Init_Web_Server(&CGI_Function2); // create and initialize tcp server socket and pass function pointer to local CGI function
 Thread WebThread(Web_Server_Thread);// create and launch web server thread
-Gen_HtmlCode_From_File("/local/pagecgi2.htm",tab_balise,2);// read and localise ^VARDEF[X] tag in empty html file 
+//Gen_HtmlCode_From_File("/local/pagecgi2.htm",tab_balise,2);// read and localise ^VARDEF[X] tag in empty html file 
 
 
 

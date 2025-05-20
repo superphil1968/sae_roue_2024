@@ -112,11 +112,11 @@
 
 #include "rtos.h"
 
-
+#define _MODE_JSON
 //#define _HTML_DEBUG
 #define _IP_DEBUG
-#define _TCP_DEBUG
-#define _HTTP_DEBUG
+//#define _TCP_DEBUG
+//#define _HTTP_DEBUG
 //#define _HTML_DEBUG
 
 extern var_field_t tab_balise[10];  //une balise est présente dans le squelette
@@ -131,6 +131,8 @@ bool clientIsConnected = false;// flag that indicate if a web client is avalaibl
 
 
 char *html_page;    // pointer to memory area of Html Page
+char buffer_json[256];
+//char *buffer_json;
 /*************** locals prototypes ***************/
 
 
@@ -316,6 +318,13 @@ void Html_Patch ( var_field_t *pTab_Balise,int index, char * pChaine ){
    memcpy( pTab_Balise[index].ptr, pChaine, pTab_Balise[index].length );
 }
 
+
+void Send_Json (char * pChaine ){
+    memset(buffer_json, 0,strlen(buffer_json));// fill buffer json with 0
+    memcpy(buffer_json, pChaine, strlen(pChaine));
+    printf("\r\n chaine JSON envoyee: %s \r\n",buffer_json);
+}
+
 void (*pfPtr) (void);
 
 
@@ -324,9 +333,8 @@ int Init_Web_Server(void (*fPtr)(void) )// fptr pointer to a void interrupt CGI 
   {pfPtr=fPtr;// affectation du pointeur public
  
     //setup ethernet interface
-   // eth.init(); //Use DHCP
-    eth.init("134.59.29.90", "255.255.255.192","134.59.29.126"); //Use static ip 
-
+    eth.init(); //Use DHCP
+//eth.init("134.59.29.94","255.255.255.192","134.59.29.126");
     eth.connect();
      #ifdef _IP_DEBUG
     printf("IP Address is %s\n\r", eth.getIPAddress());// display server ip address
@@ -418,7 +426,7 @@ void Web_Server_Thread(void const *args)
                         clientIsConnected = false;
                         break;
                     default:
-                    #ifdef _HTML_DEBUG
+                    #ifdef _HTTP_DEBUG
                         printf("Recieved Data: %d\n\r\n\r%.*s\n\r",strlen(buffer),strlen(buffer),buffer);
                     #endif
                         if(buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T' ) {
@@ -453,15 +461,31 @@ void Web_Server_Thread(void const *args)
 
                            
                             char echoHeader[256] = {};
-                            sprintf(echoHeader,"HTTP/1.1 200 OK\n\rContent-Length: %d\n\rContent-Type: text\n\rConnection: Close\n\r",strlen(html_page));
+
+                            #ifdef _MODE_JSON
+                                sprintf(echoHeader,"HTTP/1.1 200 OK\nContent-Length: %d\r\nContent-Type: application/json\r\nConnection: Close\r\n\r\n", strlen(buffer_json));
+
+
+                            #endif
+                            #ifndef _MODE_JSON
+                                sprintf(echoHeader,"HTTP/1.1 200 OK\n\rContent-Length: %d\n\rContent-Type: text\n\rConnection: Close\n\r",strlen(html_page));
+
+                            #endif
+
+
+
                             client.send(echoHeader,strlen(echoHeader));
                             #ifdef _HTTP_DEBUG
                              printf("%s",echoHeader);// debut http header sent
                             #endif                          
                             //client.send(buffer,strlen(buffer));// realise echo request to client 
                              
-                                  
+                            #ifdef _MODE_JSON
+
+                            client.send(buffer_json,strlen(buffer_json));// realise echo request to client 
+                            #else
                             client.send(html_page,strlen(html_page));// realise echo request to client 
+                            #endif
                            #ifdef _HTML_DEBUG
                             printf("%s",html_page);
                            #endif
@@ -473,7 +497,7 @@ void Web_Server_Thread(void const *args)
                         }
                         break;
                 }// end case
-           Thread::wait(10);// sleep for 10 ms
+           //Thread::wait(10);// sleep for 10 ms
             }// end while Client is Connected
            #ifdef _HTTP_DEBUG
             printf("close connection.\n\rtcp server is listening...\n\r");

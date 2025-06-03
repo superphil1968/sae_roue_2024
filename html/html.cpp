@@ -333,8 +333,8 @@ int Init_Web_Server(void (*fPtr)(void) )// fptr pointer to a void interrupt CGI 
   {pfPtr=fPtr;// affectation du pointeur public
  
     //setup ethernet interface
-    eth.init(); //Use DHCP
-//eth.init("134.59.29.94","255.255.255.192","134.59.29.126");
+   // eth.init(); //Use DHCP
+eth.init("134.59.29.94","255.255.255.192","134.59.29.126");
     eth.connect();
      #ifdef _IP_DEBUG
     printf("IP Address is %s\n\r", eth.getIPAddress());// display server ip address

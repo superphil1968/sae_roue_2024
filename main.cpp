@@ -93,22 +93,14 @@ DigitalOut led4(LED4); // blink when can message is received
 
 /********* main cgi function used to patch data to the web server thread **********************************/
 void CGI_Function2(void) // cgi function that patch web data to empty web page
-{  char ma_chaine4[20]={};// needed to form html response  
+{  char ma_chaine4[40]={""};// needed to form html response  
 
-sprintf(ma_chaine4,"{\"nom\":%d}",giCounter);
+sprintf(ma_chaine4,"{\"cle1\":%d}",giCounter);
 Send_Json(ma_chaine4);
 
-
-/*
- sprintf (ma_chaine4,"%d",giCounter);// convert speed as ascii string
- Html_Patch (tab_balise,0,ma_chaine4);// patch first label with dyn.string
- sprintf (ma_chaine4,"%d",2*giCounter);// convert speed as ascii string
- Html_Patch (tab_balise,1,ma_chaine4);// patch first label with dyn.string
-*/
-
+if (giCounter==25) giCounter=0;
+else
 giCounter=giCounter+1; 
-
-
 }
     
     
